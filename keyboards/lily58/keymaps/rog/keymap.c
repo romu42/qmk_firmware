@@ -23,7 +23,7 @@ extern uint8_t is_master;
 #define _ADJUST 3
 
 #define SE_AA LALT(KC_A)
-//#define SE_AE LALT(KC_U), KC_A
+//#define SE_AE (LALT(KC_U), KC_A)
 //#define SE_OE LALT(KC_U), KC_O
 
 enum custom_keycodes {
@@ -81,11 +81,11 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  * ,-----------------------------------------.                    ,-----------------------------------------.
  * |      |      |      |      |      |      |                    |      |      |      |      |      |      |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                    |  F7  |  F8  |  F9  |   [  |   ]  | F12  |
+ * |  F1  |  F2  |  F3  |  F4  |  F5  |  F6  |                    |  F7  |  F8  |   [  |   ]  |  F9  |   [  |
  * |------+------+------+------+------+------|                    |------+------+------+------+------+------|
- * |   `  |   !  |   @  |   #  |   $  |   %  |-------.    ,-------|   ^  |   &  |   *  |   (  |   )  |   -  |
+ * |   `  |   !  |   @  |   #  |   $  |   %  |-------.    ,-------|   ^  |   &  |   (  |   )  |   *  |   -  |
  * |------+------+------+------+------+------|   [   |    |    ]  |------+------+------+------+------+------|
- * |      |      |      |      |      |      |-------|    |-------|      |   _  |   +  |   {  |   }  |   |  |
+ * |      |      |      |      |      |      |-------|    |-------|   _  |   +  |   {  |   }  |   |  |      |
  * `-----------------------------------------/       /     \      \-----------------------------------------'
  *                   | LAlt | LGUI |LOWER | /Space  /       \Enter \  |RAISE |BackSP| RGUI |
  *                   |      |      |      |/       /         \      \ |      |      |      |
@@ -94,9 +94,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
  */
 [_LOWER] = LAYOUT( \
   _______, _______, _______, _______, _______, _______,                   _______, _______, _______,_______, _______, _______,\
-  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,                     KC_F7,   KC_F8,   KC_F9,   KC_LBRC,  KC_RBRC,  KC_F12, \
-  KC_GRV, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                   KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, KC_TILD, \
-  _______, _______, _______, _______, _______, _______, _______, _______, XXXXXXX, KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, KC_PIPE, \
+  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,                     KC_F7,   KC_F8,   KC_LBRC,  KC_RBRC, KC_F9, KC_LBRC, \
+  KC_GRV, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                   KC_CIRC, KC_AMPR,  KC_LPRN, KC_RPRN, KC_ASTR, KC_TILD, \
+  _______, _______, _______, _______, _______, _______, _______, _______, KC_UNDS, KC_PLUS, KC_LCBR, KC_RCBR, KC_PIPE, XXXXXXX, \
                              _______, _______, _______, _______, _______,  _______, _______, _______\
 ),
 /* RAISE
@@ -165,28 +165,32 @@ void matrix_init_user(void) {
     #endif
 }
 
+//void encoder_update_user(uint8_t index, bool clockwise) {
+//    if (index == 0) {
+//        if (clockwise) {
+//            tap_code(KC__VOLUP);
+//        } else {
+//            tap_code(KC__VOLDOWN);
+//        }
+//    }
+//}
+
 void encoder_update_user(uint8_t index, bool clockwise) {
-    if (index == 0) {
-        if (clockwise) {
+    if(IS_LAYER_ON(_RAISE)) { // on Raise layer control volume
+        if (clockwise){
             tap_code(KC__VOLUP);
-        } else {
+        } else{
             tap_code(KC__VOLDOWN);
+        }
+    } else { // on other layers emulate mouse scrollwheel
+        if (clockwise){
+            tap_code16(LGUI(KC_TAB));
+        } else{
+            tap_code16(SGUI(KC_TAB));
         }
     }
 }
 
-//uint8_t selected_layer = 0;
-//void encoder_update_user(uint8_t index, bool clockwise) {
-//  switch (index) {
-//    case 0:
-//      if (!clockwise && selected_layer  < 10) {
-//        selected_layer ++;
-//      } else if (clockwise && selected_layer  > 0){
-//        selected_layer --;
-//      }
-//      tap_code(DF(selected_layer));
-//  }
-//}
 
 //SSD1306 OLED update loop, make sure to add #define SSD1306OLED in config.h
 #ifdef SSD1306OLED
