@@ -28,24 +28,8 @@ enum custom_keycodes {
   LOWER,
   RAISE,
   ADJUST,
-};
-
-enum unicode_names {
-  SE_AA_HIGH,
-  SE_AE_HIGH,
-  SE_OE_HIGH,
-  SE_AA_LOW,
-  SE_AE_LOW,
-  SE_OE_LOW,
-};
-
-const uint32_t PROGMEM unicode_map[] = {
-  [SE_AA_HIGH] = 0x00C5,
-  [SE_AE_HIGH] = 0x00C4,
-  [SE_OE_HIGH] = 0x00D6,
-  [SE_AA_LOW]  = 0x00E5,
-  [SE_AE_LOW]  = 0x00E4,
-  [SE_OE_LOW]  = 0x00F6,
+  SE_OE,
+  SE_AE,
 };
 
 
@@ -114,7 +98,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [_RAISE] = LAYOUT( \
   RESET, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______, \
   KC_GRV,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0, SE_AA, \
-  KC_F1,  KC_F2,    KC_F3,   KC_F4,   KC_F5,   KC_F6,                       KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, SE_AA, SE_AA, \
+  KC_F1,  KC_F2,    KC_F3,   KC_F4,   KC_F5,   KC_F6,                       KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, SE_OE, SE_AE, \
   KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,   _______, _______,  KC_PLUS, KC_MINS, KC_EQL,  KC_LBRC, KC_RBRC, KC_BSLS, \
                              _______, _______, _______,  _______, _______, _______\
 ),
@@ -280,6 +264,30 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
         return false;
         break;
+    case SE_OE:
+	if (record->event.pressed) {
+		if ( get_mods() && MOD_BIT(KC_LSFT)) {
+			unregister_code(KC_LSFT);
+			SEND_STRING(SS_LALT("u"));
+			SEND_STRING(SS_LSFT("o"));
+		} else {
+			SEND_STRING(SS_LALT("u"));
+			SEND_STRING("o");
+		}
+	}
+	break;
+    case SE_AE:
+	if (record->event.pressed) {
+		if ( get_mods() && MOD_BIT(KC_LSFT)) {
+			unregister_code(KC_LSFT);
+			SEND_STRING(SS_LALT("u"));
+			SEND_STRING(SS_LSFT("a"));
+		} else {
+			SEND_STRING(SS_LALT("u"));
+			SEND_STRING("a");
+		}
+	}
+	break;
   }
   return true;
 }
